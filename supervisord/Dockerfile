@@ -2,7 +2,7 @@ FROM ubuntu:14.04
 
 MAINTAINER hu zhengquan "zhengquan.hu@qq.com"
 
-COPY sources.list /etc/apt/sources.list
+#COPY sources.list /etc/apt/sources.list
 
 RUN apt-get update && \
 	apt-get install -y supervisor curl wget openjdk-7-jre racket && \
