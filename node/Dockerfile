@@ -14,9 +14,9 @@ RUN   \
   wget http://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz && \
   tar -xzf node-${NODE_VERSION}-linux-x64.tar.gz && \
   mv node-${NODE_VERSION}-linux-x64 node && \
-  cd /usr/local/bin && \
-  ln -s /opt/node/bin/* . && \
   rm -f /opt/node-${NODE_VERSION}-linux-x64.tar.gz
+
+ENV PATH /opt/node/bin:$PATH
 
 RUN npm install -g pm2
 
