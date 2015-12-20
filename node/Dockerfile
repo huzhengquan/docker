@@ -4,9 +4,10 @@ FROM ubuntu:14.04
 MAINTAINER hu zhengquan "zhengquan.hu@qq.com"
 
 RUN apt-get update && \
-  apt-get install -y wget
+  apt-get install -y wget && \
+  apt-get clean
 
-ENV NODE_VERSION v5.1.1
+ENV NODE_VERSION v5.3.0
 
 RUN   \
   cd /opt && \
@@ -17,6 +18,8 @@ RUN   \
   ln -s /opt/node/bin/* . && \
   rm -f /opt/node-${NODE_VERSION}-linux-x64.tar.gz
 
+RUN npm install -g pm2
+
 RUN mkdir -p /var/log/node/app/
 
 WORKDIR /var/www/app/
@@ -24,4 +27,4 @@ WORKDIR /var/www/app/
 EXPOSE 3000
 
 
-CMD ["node","app.js"]
+CMD ["pm2", "start", "app.js", "--no-daemon", "--watch"]
