@@ -11,7 +11,7 @@ RUN apk add --update --no-progress libgcc libstdc++ make gcc g++ python linux-he
   tar -xzf node-${NODE_VERSION}.tar.gz && \
   cd node-${NODE_VERSION} && \
   ./configure --prefix=/opt/node && \
-  make -j$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
+  make && \
   make install && \
   paxctl -cm /opt/node/bin/node && \
   apk del make gcc g++ python libgcc linux-headers paxctl binutils-gold && \
