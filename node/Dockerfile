@@ -1,30 +1,33 @@
-FROM ubuntu:14.04
-
+FROM alpine:3.3
 
 MAINTAINER hu zhengquan "zhengquan.hu@qq.com"
 
-RUN apt-get update && \
-  apt-get install -y wget && \
-  apt-get clean
-
 ENV NODE_VERSION v5.3.0
-
-RUN   \
-  cd /opt && \
-  wget http://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz && \
-  tar -xzf node-${NODE_VERSION}-linux-x64.tar.gz && \
-  mv node-${NODE_VERSION}-linux-x64 node && \
-  rm -f /opt/node-${NODE_VERSION}-linux-x64.tar.gz
-
 ENV PATH /opt/node/bin:$PATH
 
-RUN npm install -g pm2
+RUN apk add --update --no-progress libgcc libstdc++ make gcc g++ python linux-headers paxctl binutils-gold && \
+  mkdir -p /opt/src && cd /opt/src && \
+  wget http://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}.tar.gz && \
+  tar -xzf node-${NODE_VERSION}.tar.gz && \
+  cd node-${NODE_VERSION} && \
+  ./configure --prefix=/opt/node && \
+  make -j$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
+  make install && \
+  paxctl -cm /opt/node/bin/node && \
+  apk del make gcc g++ python libgcc linux-headers paxctl binutils-gold && \
+  npm install -g pm2 && \
+  cd /opt && \
+  rm -rf \
+    /opt/src \
+    /etc/ssl \
+    /tmp/* /var/cache/apk/* /root/.npm /root/.node-gyp \
+    /opt/node/lib/node_modules/npm/man \
+    /opt/node/lib/node_modules/npm/doc \
+    /opt/node/lib/node_modules/npm/html 
 
-RUN mkdir -p /var/log/node/app/
 
-WORKDIR /var/www/app/
+WORKDIR /app
 
 EXPOSE 3000
-
 
 CMD ["pm2", "start", "app.js", "--no-daemon", "--watch"]
