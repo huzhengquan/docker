@@ -6,8 +6,7 @@ ENV ESDIR /opt/elasticsearch-2.1.1
 ENV IK_VERSION 1.7.0
 ENV IKDIR /opt/elasticsearch-analysis-ik-${IK_VERSION}
 
-RUN mkdir /opt && \
-  wget https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.1.1/elasticsearch-2.1.1.tar.gz | tar -xzC /opt && \
+RUN  wget https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.1.1/elasticsearch-2.1.1.tar.gz | tar -xzC /opt && \
   wget https://github.com/medcl/elasticsearch-analysis-ik/archive/v${IK_VERSION}.tar.gz | tar -xzC /opt && \
   cd /opt/elasticsearch-analysis-ik-${IK_VERSION} && \
   mvn package && \
