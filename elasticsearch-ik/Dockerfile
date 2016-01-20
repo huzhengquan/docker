@@ -10,8 +10,10 @@ RUN  wget -O - https://download.elasticsearch.org/elasticsearch/release/org/elas
   wget -O - https://github.com/medcl/elasticsearch-analysis-ik/archive/v${IK_VERSION}.tar.gz | tar -xzC /opt && \
   cd /opt/elasticsearch-analysis-ik-${IK_VERSION} && \
   mvn package && \
+  mkdir -p ${ESDIR}/plugins/ik && \
+  cp ${IKDIR}/target/releases/elasticsearch-analysis-ik-1.6.1.zip ${ESDIR}/plugins/ik/ && \
+  cd /opt/${ESDIR}/plugins/ik && unzip elasticsearch-analysis-ik-1.6.1.zip && rm -rf elasticsearch-analysis-ik-1.6.1.zip && \
   cd /opt && \
-  cp ${IKDIR}/target/releases/elasticsearch-analysis-ik-*-jar-with-dependencies.jar ${ESDIR}/lib/ && \
   cp -r ${IKDIR}/config/elasticsearch.yml ${ESDIR}/config/ && \
   cp -r ${IKDIR}/config/ik ${ESDIR}/config/ && \
   rm -rf ${IKDIR}
