@@ -14,7 +14,7 @@ RUN  wget -O - https://download.elasticsearch.org/elasticsearch/release/org/elas
   cp ${IKDIR}/target/releases/elasticsearch-analysis-ik-*-jar-with-dependencies.jar ${ESDIR}/lib/ && \
   cp -r ${IKDIR}/config/elasticsearch.yml ${ESDIR}/config/ && \
   cp -r ${IKDIR}/config/ik ${ESDIR}/config/ && \
-  rm -r ${IKDIR}
+  rm -rf ${IKDIR}
 
 ENV PATH ${PATH}:${ESDIR}/bin
 
