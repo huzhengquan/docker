@@ -5,7 +5,7 @@ MAINTAINER hu zhengquan "zhengquan.hu@qq.com"
 
 RUN apt-get update && \
 	apt-get install -y beanstalkd && \
-	apt-get clean
+	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 EXPOSE 11300
 
