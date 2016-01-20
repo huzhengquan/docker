@@ -2,8 +2,8 @@ FROM huzhengquan/java:8
 
 MAINTAINER hu zhengquan "zhengquan.hu@qq.com"
 
-ENV ESDIR /opt/elasticsearch-2.1.1
-ENV IK_VERSION 1.7.0
+ENV ESDIR /opt/elasticsearch-2.1.0
+ENV IK_VERSION 1.6.1
 ENV IKDIR /opt/elasticsearch-analysis-ik-${IK_VERSION}
 
 RUN  wget -O - https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.1.1/elasticsearch-2.1.1.tar.gz | tar -xzC /opt && \
@@ -11,8 +11,8 @@ RUN  wget -O - https://download.elasticsearch.org/elasticsearch/release/org/elas
   cd /opt/elasticsearch-analysis-ik-${IK_VERSION} && \
   mvn package && \
   mkdir -p ${ESDIR}/plugins/ik && \
-  cp ${IKDIR}/target/releases/elasticsearch-analysis-ik-1.6.1.zip ${ESDIR}/plugins/ik/ && \
-  cd /opt/${ESDIR}/plugins/ik && unzip elasticsearch-analysis-ik-1.6.1.zip && rm -rf elasticsearch-analysis-ik-1.6.1.zip && \
+  cp ${IKDIR}/target/releases/elasticsearch-analysis-ik-${IK_VERSION}.zip ${ESDIR}/plugins/ik/ && \
+  cd /opt/${ESDIR}/plugins/ik && unzip elasticsearch-analysis-ik-${IK_VERSION}.zip && rm -rf elasticsearch-analysis-ik-${IK_VERSION}.zip && \
   cd /opt && \
   cp -r ${IKDIR}/config/elasticsearch.yml ${ESDIR}/config/ && \
   cp -r ${IKDIR}/config/ik ${ESDIR}/config/ && \
