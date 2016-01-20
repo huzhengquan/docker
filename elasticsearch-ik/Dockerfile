@@ -5,7 +5,8 @@ MAINTAINER hu zhengquan "zhengquan.hu@qq.com"
 ENV ESDIR /opt/elasticsearch-2.1.1
 ENV IKDIR /opt/elasticsearch-analysis-ik-master
 
-RUN wget https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.1.1/elasticsearch-2.1.1.tar.gz | tar -xzC /opt && \
+RUN mkdir /opt && \
+  wget https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.1.1/elasticsearch-2.1.1.tar.gz | tar -xzC /opt && \
   wget https://github.com/medcl/elasticsearch-analysis-ik/archive/master.tar.gz | tar -xzC /opt && \
   cd /opt/elasticsearch-analysis-ik-master && \
   mvn package && \
