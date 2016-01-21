@@ -7,7 +7,7 @@ ENV IK_VERSION 1.6.1
 ENV IKDIR /opt/elasticsearch-analysis-ik-${IK_VERSION}
 
 RUN apk add --update curl && \
-  adduser -u 1000 -D -H -s /bin/ash noroot && \
+  adduser -u 1000 -D -H -s /bin/ash -m noroot && \
   rm -rf /tmp/* /var/cache/apk/*  && \
   mkdir -p /opt && chmod a+w /opt 
 
@@ -22,7 +22,7 @@ RUN curl -sSL https://download.elasticsearch.org/elasticsearch/release/org/elast
   cd ${ESDIR}/plugins/ik && unzip elasticsearch-analysis-ik-${IK_VERSION}.zip && rm -rf elasticsearch-analysis-ik-${IK_VERSION}.zip && \
   cd /opt && \
   cp -r ${IKDIR}/config/ik ${ESDIR}/config/ && \
-  rm -rf ${IKDIR} /tmp/* /var/cache/apk/* 
+  rm -rf ${IKDIR} /tmp/* /var/cache/apk/*  ~/*
 #cp -r ${IKDIR}/config/elasticsearch.yml ${ESDIR}/config/ && \
 
 ENV PATH ${PATH}:${ESDIR}/bin
