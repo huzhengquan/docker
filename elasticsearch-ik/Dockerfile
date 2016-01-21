@@ -17,12 +17,12 @@ RUN apk add --update curl && \
   cd ${ESDIR}/plugins/ik && unzip elasticsearch-analysis-ik-${IK_VERSION}.zip && rm -rf elasticsearch-analysis-ik-${IK_VERSION}.zip && \
   cd /opt && \
   cp -r ${IKDIR}/config/ik ${ESDIR}/config/ && \
-  rm -rf ${IKDIR} /tmp/* /var/cache/apk/* && \
-  useradd noroot -u 1000 -s /bin/ash
+  rm -rf ${IKDIR} /tmp/* /var/cache/apk/* 
 #cp -r ${IKDIR}/config/elasticsearch.yml ${ESDIR}/config/ && \
 
 ENV PATH ${PATH}:${ESDIR}/bin
 
+RUN useradd noroot -u 1000 -s /bin/ash
 USER noroot
 
 EXPOSE 9200/tcp 9300/udp
