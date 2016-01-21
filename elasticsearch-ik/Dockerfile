@@ -7,7 +7,7 @@ ENV IK_VERSION 1.6.1
 ENV IKDIR /opt/elasticsearch-analysis-ik-${IK_VERSION}
 
 RUN apk add --update curl && \
-  adduser -u 1000 -D -H -s /bin/ash -m noroot && \
+  adduser -u 1000 -D -s /bin/ash noroot && \
   rm -rf /tmp/* /var/cache/apk/*  && \
   mkdir -p /opt && chmod a+w /opt 
 
