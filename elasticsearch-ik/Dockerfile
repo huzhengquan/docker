@@ -6,6 +6,10 @@ ENV ESDIR /opt/elasticsearch-2.1.0
 ENV IK_VERSION 1.6.1
 ENV IKDIR /opt/elasticsearch-analysis-ik-${IK_VERSION}
 
+RUN adduser --no-create-home --uid 1000 --disabled-password noroot && \
+  mkdir -p /opt && chmod a+w /opt 
+USER noroot
+
 RUN apk add --update curl && \
   curl -sSL https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.1.0/elasticsearch-2.1.0.tar.gz | tar -xzC /opt && \
   curl -sSL https://github.com/medcl/elasticsearch-analysis-ik/archive/v${IK_VERSION}.tar.gz | tar -xzC /opt && \
@@ -22,8 +26,6 @@ RUN apk add --update curl && \
 
 ENV PATH ${PATH}:${ESDIR}/bin
 
-RUN useradd noroot -u 1000 -s /bin/ash
-USER noroot
 
 EXPOSE 9200/tcp 9300/udp
 
