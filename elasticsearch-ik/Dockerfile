@@ -12,7 +12,7 @@ RUN  wget -O - https://download.elasticsearch.org/elasticsearch/release/org/elas
   mvn package && \
   mkdir -p ${ESDIR}/plugins/ik && \
   cp ${IKDIR}/target/releases/elasticsearch-analysis-ik-${IK_VERSION}.zip ${ESDIR}/plugins/ik/ && \
-  cd /opt/${ESDIR}/plugins/ik && unzip elasticsearch-analysis-ik-${IK_VERSION}.zip && rm -rf elasticsearch-analysis-ik-${IK_VERSION}.zip && \
+  cd ${ESDIR}/plugins/ik && unzip elasticsearch-analysis-ik-${IK_VERSION}.zip && rm -rf elasticsearch-analysis-ik-${IK_VERSION}.zip && \
   cd /opt && \
   cp -r ${IKDIR}/config/elasticsearch.yml ${ESDIR}/config/ && \
   cp -r ${IKDIR}/config/ik ${ESDIR}/config/ && \
