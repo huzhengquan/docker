@@ -6,7 +6,7 @@ ENV ESDIR /opt/elasticsearch-2.1.0
 ENV IK_VERSION 1.6.1
 ENV IKDIR /opt/elasticsearch-analysis-ik-${IK_VERSION}
 
-RUN adduser --no-create-home --uid 1000 --disabled-password noroot && \
+RUN adduser -u 1000 -D -H -s /bin/ash noroot && \
   mkdir -p /opt && chmod a+w /opt 
 USER noroot
 
