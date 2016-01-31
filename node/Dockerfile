@@ -7,7 +7,7 @@ ENV PATH /opt/node/bin:$PATH
 
 RUN apk add --update --no-progress libgcc libstdc++ make gcc g++ python linux-headers paxctl binutils-gold && \
   mkdir -p /opt/src && \
-  wget -O - https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}.tar.gz | tar -xzC /opt/src && \
+  wget -O - http://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}.tar.gz | tar -xzC /opt/src && \
   cd /opt/src/node-${NODE_VERSION} && \
   ./configure --prefix=/opt/node && \
   make -j$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
