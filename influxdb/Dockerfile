@@ -3,11 +3,10 @@ MAINTAINER zhengquan.hu <zhengquan.hu@qq.com>
 
 ENV INFLUXDB_VERSION=0.12.2
 
-#echo "http://dl-4.alpinelinux.org/alpine/v3.3/community" >> /etc/apk/repositories && \
 RUN export GOPATH=/go && \
     apk add --update go=1.5.4-r0 git musl-dev curl && \
-    go get github.com/influxdb/influxdb && \
-    cd $GOPATH/src/github.com/influxdb/influxdb && \
+    go get github.com/influxdata/influxdb && \
+    cd $GOPATH/src/github.com/influxdata/influxdb && \
     go get -v -u -f -t ./... && \
     git checkout -q --detach "v${INFLUXDB_VERSION}" && \
     go clean -v ./... && \
