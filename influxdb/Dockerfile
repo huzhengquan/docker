@@ -4,8 +4,8 @@ MAINTAINER zhengquan.hu <zhengquan.hu@qq.com>
 ENV INFLUXDB_VERSION=0.12.2
 
 RUN export GOPATH=/go && \
-    echo "http://dl-2.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
-    apk add --update go=1.6.1-r0 git musl-dev curl && \
+    echo "http://dl-2.alpinelinux.org/alpine/v3.3/community" >> /etc/apk/repositories && \
+    apk add --update go=1.5.4-r0 git musl-dev curl && \
     go get github.com/influxdb/influxdb && \
     cd $GOPATH/src/github.com/influxdb/influxdb && \
     go get -v -u -f -t ./... && \
