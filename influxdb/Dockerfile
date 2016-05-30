@@ -4,7 +4,8 @@ MAINTAINER zhengquan.hu <zhengquan.hu@qq.com>
 ENV INFLUXDB_VERSION=0.12.2
 
 RUN export GOPATH=/go && \
-    apk add --update go=1.5.4-r0 git musl-dev curl && \
+    apk add --update go git musl-dev curl && \
+		git clone https://github.com/golang/crypto.git /go/src/golang.org/x/crypto \
     go get github.com/influxdata/influxdb && \
     cd $GOPATH/src/github.com/influxdata/influxdb && \
     go get -v -u -f -t ./... && \
@@ -20,3 +21,4 @@ RUN export GOPATH=/go && \
     mkdir -p /etc/influxdb /data/influxdb /data/influxdb/meta /data/influxdb/data /var/tmp/influxdb/wal /var/log/influxdb
 
 EXPOSE 8083 8086
+
