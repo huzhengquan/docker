@@ -2,8 +2,8 @@ FROM alpine:3.3
 
 MAINTAINER zhengquan.hu "zhengquan.hu@qq.com"
 
-ENV NODE_VERSION v4.4.3
 ENV PATH /opt/node/bin:$PATH
+ENV NODE_VERSION v4.4.5
 
 RUN apk add --update --no-progress libgcc libstdc++ make gcc g++ python linux-headers paxctl binutils-gold && \
   mkdir -p /opt/src && \
