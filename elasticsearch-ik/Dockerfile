@@ -6,7 +6,8 @@ ENV IK_VERSION 5.1.1
 
 ADD https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v${IK_VERSION}/elasticsearch-analysis-ik-${IK_VERSION}.zip /tmp/elasticsearch-analysis-ik.zip
 
-RUN unzip /tmp/elasticsearch-analysis-ik.zip -d /usr/share/elasticsearch/plugins/ik 
+RUN mkdir /usr/share/elasticsearch/plugins/ik && \
+  unzip /tmp/elasticsearch-analysis-ik.zip -d /usr/share/elasticsearch/plugins/ik 
 
 EXPOSE 9200 9300
 
