@@ -2,7 +2,7 @@ FROM elasticsearch:5-alpine
 
 MAINTAINER hu zhengquan "huzhengquan@gmail.com"
 
-ENV IK_VERSION 5.1.1
+ENV IK_VERSION 5.1.2
 
 ADD https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v${IK_VERSION}/elasticsearch-analysis-ik-${IK_VERSION}.zip /tmp/elasticsearch-analysis-ik.zip
 
