@@ -19,4 +19,4 @@ WORKDIR /wiki
 
 EXPOSE 3000
 
-ENTRYPOINT ["gollum", "--port", "3000", "--adapter" "rugged" ]
+ENTRYPOINT ["gollum", "--port", "3000", "--adapter", "rugged" ]
