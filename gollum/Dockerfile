@@ -8,7 +8,7 @@ RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone
 
 RUN apk update && \
-  apk add --no-cache --update --no-progress icu-dev cmake g++ make icu-libs && \
+  apk add --no-cache --update --no-progress icu-dev cmake g++ make icu-libs git && \
   gem install github-linguist && \
   gem install gollum && \
   apk del cmake g++ make icu-dev && \
