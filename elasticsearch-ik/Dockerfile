@@ -1,8 +1,8 @@
-FROM elasticsearch:6.4.1-alpine
+FROM elasticsearch:5.6.11-alpine
 
 MAINTAINER hu zhengquan "huzhengquan@gmail.com"
 
-ENV IK_VERSION 6.4.1
+ENV IK_VERSION 5.6.11
 
 ADD https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v${IK_VERSION}/elasticsearch-analysis-ik-${IK_VERSION}.zip /tmp/elasticsearch-analysis-ik.zip
 
