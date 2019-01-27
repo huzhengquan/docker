@@ -1,110 +1,86 @@
-FROM alpine:3.7
+FROM alpine:3.8
 
-MAINTAINER Huang Rui <vowstar@gmail.com>, Turtle <turtled@emqtt.io>
+MAINTAINER Huang Rui <vowstar@gmail.com>, EMQ X Team <support@emqx.io>
 
-ENV EMQ_VERSION=v2.3.11
+ENV OTP_VERSION="21.2"
+ENV EMQX_VERSION=emqx30
+ENV EMQX_DEPS_DEFAULT_VSN=${EMQX_VERSION}
 
 COPY ./start.sh /start.sh
 
-RUN set -ex \
-    # add build deps, remove after build
-    && apk --no-cache add --virtual .build-deps \
-        build-base \
-        # gcc \
-        # make \
-        bsd-compat-headers \
-        perl \
-        erlang \
-        erlang-public-key \
-        erlang-syntax-tools \
-        erlang-erl-docgen \
-        #erlang-gs \
-        erlang-observer \
-        erlang-ssh \
-        #erlang-ose \
-        erlang-cosfiletransfer \
-        erlang-runtime-tools \
-        erlang-os-mon \
-        erlang-tools \
-        erlang-cosproperty \
-        erlang-common-test \
-        erlang-dialyzer \
-        erlang-edoc \
-        erlang-otp-mibs \
-        erlang-crypto \
-        erlang-costransaction \
-        erlang-odbc \
-        erlang-inets \
-        erlang-asn1 \
-        erlang-snmp \
-        erlang-erts \
-        erlang-et \
-        erlang-cosnotification \
-        erlang-xmerl \
-        #erlang-typer \
-        erlang-coseventdomain \
-        erlang-stdlib \
-        erlang-diameter \
-        erlang-hipe \
-        erlang-ic \
-        erlang-eunit \
-        #erlang-webtool \
-        erlang-mnesia \
-        erlang-erl-interface \
-        #erlang-test-server \
-        erlang-sasl \
-        erlang-jinterface \
-        erlang-kernel \
-        erlang-orber \
-        erlang-costime \
-        #erlang-percept \
-        erlang-dev \
-        erlang-eldap \
-        erlang-reltool \
-        erlang-debugger \
-        erlang-ssl \
-        erlang-megaco \
-        erlang-parsetools \
-        erlang-cosevent \
-        erlang-compiler \
-    # add fetch deps, remove after build
-    && apk add --no-cache --virtual .fetch-deps \
-        git \
-        wget \
-    # add run deps, never remove
-    && apk add --no-cache --virtual .run-deps \
-        ncurses-terminfo-base \
-        ncurses-terminfo \
-        ncurses-libs \
-        readline \
-    # add latest rebar
-    && git clone -b ${EMQ_VERSION} https://github.com/emqtt/emq-relx.git /emqttd \
-    && cd /emqttd \
-    && make \
-    && mkdir -p /opt && mv /emqttd/_rel/emqttd /opt/emqttd \
-    && cd / && rm -rf /emqttd \
-    && mv /start.sh /opt/emqttd/start.sh \
-    && chmod +x /opt/emqttd/start.sh \
-    && ln -s /opt/emqttd/bin/* /usr/local/bin/ \
-    # removing fetch deps and build deps
-    && apk --purge del .build-deps .fetch-deps \
-    && rm -rf /var/cache/apk/*
+RUN set -xe \
+	&& OTP_DOWNLOAD_URL="https://github.com/erlang/otp/archive/OTP-${OTP_VERSION}.tar.gz" \
+	&& OTP_DOWNLOAD_SHA256="5d2cb28232a60ce88c6478fcf5d6aa5be353555e02f3cf96ed93c9bae7522448" \
+        && apk add --no-cache --virtual .fetch-deps \
+                curl \
+                bsd-compat-headers \
+                ca-certificates \
+        && curl -fSL -o otp-src.tar.gz "$OTP_DOWNLOAD_URL" \
+        && echo "$OTP_DOWNLOAD_SHA256  otp-src.tar.gz" | sha256sum -c - \
+        && apk add --no-cache --virtual .build-deps \
+                dpkg-dev dpkg \
+                gcc \
+                g++ \
+                libc-dev \
+                linux-headers \
+                make \
+                autoconf \
+                ncurses-dev \
+                openssl-dev \
+                unixodbc-dev \
+                lksctp-tools-dev \
+                tar \
+                git \
+                wget \
+                coreutils \
+        && export ERL_TOP="/usr/src/otp_src_${OTP_VERSION%%@*}" \
+        && mkdir -vp $ERL_TOP \
+        && tar -xzf otp-src.tar.gz -C $ERL_TOP --strip-components=1 \
+        && rm otp-src.tar.gz \
+        && ( cd $ERL_TOP \
+          && ./otp_build autoconf \
+          && gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+          && ./configure --build="$gnuArch" \
+          && make -j$(getconf _NPROCESSORS_ONLN) \
+          && make install ) \
+        && rm -rf $ERL_TOP \
+        && find /usr/local -regex '/usr/local/lib/erlang/\(lib/\|erts-\).*/\(man\|doc\|obj\|c_src\|emacs\|info\|examples\)' | xargs rm -rf \
+        && find /usr/local -name src | xargs -r find | grep -v '\.hrl$' | xargs rm -v || true \
+        && find /usr/local -name src | xargs -r find | xargs rmdir -vp || true \
+        && scanelf --nobanner -E ET_EXEC -BF '%F' --recursive /usr/local | xargs -r strip --strip-all \
+        && scanelf --nobanner -E ET_DYN -BF '%F' --recursive /usr/local | xargs -r strip --strip-unneeded \
+        && runDeps="$( \
+                scanelf --needed --nobanner --format '%n#p' --recursive /usr/local \
+                        | tr ',' '\n' \
+                        | sort -u \
+                        | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
+        )" \
+        && apk add --virtual .erlang-rundeps $runDeps lksctp-tools \
+        && cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
+        && cd /emqx \
+        && make \
+        && mkdir -p /opt && mv /emqx/_rel/emqx /opt/emqx \
+        && cd / && rm -rf /emqx \
+        && mv /start.sh /opt/emqx/start.sh \
+        && chmod +x /opt/emqx/start.sh \
+        && ln -s /opt/emqx/bin/* /usr/local/bin/ \
+        # removing fetch deps and build deps
+		&& apk --purge del .build-deps .fetch-deps \
+        && rm -rf /var/cache/apk/* \
+        && rm -rf /usr/local/lib/erlang
 
-WORKDIR /opt/emqttd
+WORKDIR /opt/emqx
 
-# start emqttd and initial environments
-CMD ["/opt/emqttd/start.sh"]
+RUN adduser -D -u 1000 emqx
 
-RUN adduser -D -u 1000 emqtt
+RUN chgrp -Rf emqx /opt/emqx && chmod -Rf g+w /opt/emqx \
+      && chown -Rf emqx /opt/emqx
 
-RUN chgrp -Rf root /opt/emqttd && chmod -Rf g+w /opt/emqttd \
-      && chown -Rf emqtt /opt/emqttd
+USER emqx
 
-USER emqtt
+VOLUME ["/opt/emqx/log", "/opt/emqx/data", "/opt/emqx/lib", "/opt/emqx/etc"]
 
-VOLUME ["/opt/emqttd/log", "/opt/emqttd/data", "/opt/emqttd/lib", "/opt/emqttd/etc"]
-
-# emqttd will occupy these port:
+# emqx will occupy these port:
 # - 1883 port for MQTT
 # - 8883 port for MQTT(SSL)
 # - 8083 for WebSocket/HTTP
@@ -112,5 +88,9 @@ VOLUME ["/opt/emqttd/log", "/opt/emqttd/data", "/opt/emqttd/lib", "/opt/emqttd/e
 # - 8080 for mgmt API
 # - 18083 for dashboard
 # - 4369 for port mapping
-# - 6000-6999 for distributed node
-EXPOSE 1883 8883 8083 8084 8080 18083 4369 6000-6999
+# - 5369 for gen_rpc port mapping
+# - 6369 for distributed node
+EXPOSE 1883 8883 8083 8084 8080 18083 4369 5369 6369 6000-6999
+
+# start emqx and initial environments
+CMD ["/opt/emqx/start.sh"]
