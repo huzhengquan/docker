@@ -27,7 +27,7 @@ RUN { echo '#/bin/sh'; echo 'echo "$JAVA_HOME"'; } > /usr/local/bin/docker-java-
 # >
 # > These binaries are built by Red Hat on their infrastructure on behalf of the OpenJDK jdk8u and jdk11u projects. The binaries are created from the unmodified source code at OpenJDK. Although no formal support agreement is provided, please report any bugs you may find to https://bugs.java.com/.
 # >
-ENV JAVA_VERSION 8u272
+ENV JAVA_VERSION 8u282
 # https://github.com/docker-library/openjdk/issues/320#issuecomment-494050246
 # >
 # > I am the OpenJDK 8 and 11 Updates OpenJDK project lead.
@@ -116,7 +116,9 @@ RUN set -eux; \
 
 
 # python
-ENV PYTHON_VERSION 3.9.0
+ENV PYTHON_VERSION 3.9.1
+# wasmtime
+ENV WASMTIME_VERSION v0.22.1
 
 
 RUN set -ex \
@@ -189,6 +191,14 @@ RUN set -ex \
 		| cut -d: -f1 \
 		| sort -u \
 		| xargs -r apt-mark manual \
+# wasmtime \
+  && cd /usr/src \
+  && wget -O wasmtime.tar.xz "https://github.com/bytecodealliance/wasmtime/releases/download/${WASMTIME_VERSION}/wasmtime-${WASMTIME_VERSION}-x86_64-linux.tar.xz" --no-check-certificate \
+  && mkdir -p /usr/src/wasmtime \
+	&& tar -xJC /usr/src/wasmtime --strip-components=1 -f wasmtime.tar.xz \
+  && mv /usr/src/wasmtime/wasmtime /usr/local/ \
+  && rm -rf wasmtime.tar.xz \
+  && rm -rf /usr/src/wasmtime \
 	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
 	&& rm -rf /var/lib/apt/lists/* \
 	\
