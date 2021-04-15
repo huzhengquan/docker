@@ -196,7 +196,7 @@ RUN set -ex \
   && wget -O wasmtime.tar.xz "https://github.com/bytecodealliance/wasmtime/releases/download/${WASMTIME_VERSION}/wasmtime-${WASMTIME_VERSION}-x86_64-linux.tar.xz" --no-check-certificate \
   && mkdir -p /usr/src/wasmtime \
 	&& tar -xJC /usr/src/wasmtime --strip-components=1 -f wasmtime.tar.xz \
-  && mv /usr/src/wasmtime/wasmtime /usr/local/ \
+  && mv /usr/src/wasmtime/wasmtime /usr/local/bin/ \
   && rm -rf wasmtime.tar.xz \
   && rm -rf /usr/src/wasmtime \
 	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
