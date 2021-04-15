@@ -116,9 +116,9 @@ RUN set -eux; \
 
 
 # python
-ENV PYTHON_VERSION 3.9.1
+ENV PYTHON_VERSION 3.9.4
 # wasmtime
-ENV WASMTIME_VERSION v0.22.1
+ENV WASMTIME_VERSION v0.26.0
 
 
 RUN set -ex \
@@ -202,5 +202,6 @@ RUN set -ex \
 	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
 	&& rm -rf /var/lib/apt/lists/* \
 	\
-	&& python3 --version
+	&& python3 --version \
+	&& wasmtime -V \
 
