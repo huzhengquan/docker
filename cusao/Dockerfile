@@ -15,7 +15,7 @@ RUN set -eux; \
     lua${LUA_VERSION} \
 	; \
 	rm -rf /var/lib/apt/lists/* ; \
-	lua -v \
+	lua -v
 
 # Default to UTF-8 file.encoding
 ENV LANG C.UTF-8
