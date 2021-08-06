@@ -27,7 +27,7 @@ RUN { echo '#/bin/sh'; echo 'echo "$JAVA_HOME"'; } > /usr/local/bin/docker-java-
 # >
 # > These binaries are built by Red Hat on their infrastructure on behalf of the OpenJDK jdk8u and jdk11u projects. The binaries are created from the unmodified source code at OpenJDK. Although no formal support agreement is provided, please report any bugs you may find to https://bugs.java.com/.
 # >
-ENV JAVA_VERSION 8u282
+ENV JAVA_VERSION 8u302
 # https://github.com/docker-library/openjdk/issues/320#issuecomment-494050246
 # >
 # > I am the OpenJDK 8 and 11 Updates OpenJDK project lead.
@@ -38,11 +38,13 @@ ENV JAVA_VERSION 8u282
 RUN set -eux; \
 	\
 	arch="$(dpkg --print-architecture)"; \
-# this "case" statement is generated via "update.sh"
 	case "$arch" in \
-# amd64
-		amd64 | i386:x86-64) downloadUrl=https://github.com/AdoptOpenJDK/openjdk8-upstream-binaries/releases/download/jdk8u272-b10/OpenJDK8U-jdk_x64_linux_8u272b10.tar.gz ;; \
-# fallback
+		'amd64') \
+			downloadUrl='https://github.com/AdoptOpenJDK/openjdk8-upstream-binaries/releases/download/jdk8u302-b08/OpenJDK8U-jdk_x64_linux_8u302b08.tar.gz'; \
+			;; \
+		'arm64') \
+			downloadUrl='https://github.com/AdoptOpenJDK/openjdk8-upstream-binaries/releases/download/jdk8u302-b08/OpenJDK8U-jdk_aarch64_linux_8u302b08.tar.gz'; \
+			;; \
 		*) echo >&2 "error: unsupported architecture: '$arch'"; exit 1 ;; \
 	esac; \
 	\
@@ -55,16 +57,17 @@ RUN set -eux; \
 	; \
 	rm -rf /var/lib/apt/lists/*; \
 	\
-	wget -O openjdk.tgz.asc "$downloadUrl.sign"; \
-	wget -O openjdk.tgz "$downloadUrl" --progress=dot:giga; \
+	wget --progress=dot:giga -O openjdk.tgz "$downloadUrl"; \
+	wget --progress=dot:giga -O openjdk.tgz.asc "$downloadUrl.sign"; \
 	\
 	export GNUPGHOME="$(mktemp -d)"; \
+# pre-fetch Andrew Haley's (the OpenJDK 8 and 11 Updates OpenJDK project lead) key so we can verify that the OpenJDK key was signed by it
+# (https://github.com/docker-library/openjdk/pull/322#discussion_r286839190)
+# we pre-fetch this so that the signature it makes on the OpenJDK key can survive "import-clean" in gpg
+	gpg --batch --keyserver keyserver.ubuntu.com --recv-keys EAC843EBD3EFDB98CC772FADA5CD6035332FA671; \
 # TODO find a good link for users to verify this key is right (https://mail.openjdk.java.net/pipermail/jdk-updates-dev/2019-April/000951.html is one of the only mentions of it I can find); perhaps a note added to https://adoptopenjdk.net/upstream.html would make sense?
 # no-self-sigs-only: https://salsa.debian.org/debian/gnupg2/commit/c93ca04a53569916308b369c8b218dad5ae8fe07
-	gpg --batch --keyserver ha.pool.sks-keyservers.net --keyserver-options no-self-sigs-only --recv-keys CA5F11C6CE22644D42C6AC4492EF8D39DC13168F; \
-# also verify that key was signed by Andrew Haley (the OpenJDK 8 and 11 Updates OpenJDK project lead)
-# (https://github.com/docker-library/openjdk/pull/322#discussion_r286839190)
-	gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys EAC843EBD3EFDB98CC772FADA5CD6035332FA671; \
+	gpg --batch --keyserver keyserver.ubuntu.com --keyserver-options no-self-sigs-only --recv-keys CA5F11C6CE22644D42C6AC4492EF8D39DC13168F; \
 	gpg --batch --list-sigs --keyid-format 0xLONG CA5F11C6CE22644D42C6AC4492EF8D39DC13168F \
 		| tee /dev/stderr \
 		| grep '0xA5CD6035332FA671' \
@@ -82,8 +85,6 @@ RUN set -eux; \
 	; \
 	rm openjdk.tgz*; \
 	\
-# TODO strip "demo" and "man" folders?
-	\
 	apt-mark auto '.*' > /dev/null; \
 	[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null; \
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
@@ -96,11 +97,7 @@ RUN set -eux; \
 	{ \
 		echo '#!/usr/bin/env bash'; \
 		echo 'set -Eeuo pipefail'; \
-		echo 'if ! [ -d "$JAVA_HOME" ]; then echo >&2 "error: missing JAVA_HOME environment variable"; exit 1; fi'; \
-# 8-jdk uses "$JAVA_HOME/jre/lib/security/cacerts" and 8-jre and 11+ uses "$JAVA_HOME/lib/security/cacerts" directly (no "jre" directory)
-		echo 'cacertsFile=; for f in "$JAVA_HOME/lib/security/cacerts" "$JAVA_HOME/jre/lib/security/cacerts"; do if [ -e "$f" ]; then cacertsFile="$f"; break; fi; done'; \
-		echo 'if [ -z "$cacertsFile" ] || ! [ -f "$cacertsFile" ]; then echo >&2 "error: failed to find cacerts file in $JAVA_HOME"; exit 1; fi'; \
-		echo 'trust extract --overwrite --format=java-cacerts --filter=ca-anchors --purpose=server-auth "$cacertsFile"'; \
+		echo 'trust extract --overwrite --format=java-cacerts --filter=ca-anchors --purpose=server-auth "$JAVA_HOME/jre/lib/security/cacerts"'; \
 	} > /etc/ca-certificates/update.d/docker-openjdk; \
 	chmod +x /etc/ca-certificates/update.d/docker-openjdk; \
 	/etc/ca-certificates/update.d/docker-openjdk; \
@@ -114,11 +111,12 @@ RUN set -eux; \
 	java -version
 
 
-
 # python
-ENV PYTHON_VERSION 3.9.4
+ENV PYTHON_VERSION 3.9.6
 # wasmtime
-ENV WASMTIME_VERSION v0.26.0
+ENV WASMTIME_VERSION v0.29.0
+# lua
+ENV LUA_VERSION 5.3
 
 
 RUN set -ex \
@@ -144,6 +142,7 @@ RUN set -ex \
 		wget \
 		xz-utils \
 		zlib1g-dev \
+    lua${LUA_VERSION} \
 # as of Stretch, "gpg" is no longer included by default
 		$(command -v gpg > /dev/null || echo 'gnupg dirmngr') \
 	\
@@ -204,4 +203,5 @@ RUN set -ex \
 	\
 	&& python3 --version \
 	&& wasmtime -V \
+	&& lua -v \
 
