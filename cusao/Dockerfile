@@ -2,6 +2,9 @@ FROM debian:buster-slim
 
 #RUN sed -i 's#http://deb.debian.org#http://mirrors.163.com#g' /etc/apt/sources.list
 
+# lua
+ENV LUA_VERSION 5.3
+
 RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
@@ -9,8 +12,10 @@ RUN set -eux; \
 		ca-certificates p11-kit \
 		netbase \
 		gcc g++ \
+    lua${LUA_VERSION} \
 	; \
-	rm -rf /var/lib/apt/lists/*
+	rm -rf /var/lib/apt/lists/* ; \
+	lua -v \
 
 # Default to UTF-8 file.encoding
 ENV LANG C.UTF-8
@@ -115,8 +120,6 @@ RUN set -eux; \
 ENV PYTHON_VERSION 3.9.6
 # wasmtime
 ENV WASMTIME_VERSION v0.29.0
-# lua
-ENV LUA_VERSION 5.3
 
 
 RUN set -ex \
@@ -142,7 +145,6 @@ RUN set -ex \
 		wget \
 		xz-utils \
 		zlib1g-dev \
-    lua${LUA_VERSION} \
 # as of Stretch, "gpg" is no longer included by default
 		$(command -v gpg > /dev/null || echo 'gnupg dirmngr') \
 	\
@@ -203,5 +205,4 @@ RUN set -ex \
 	\
 	&& python3 --version \
 	&& wasmtime -V \
-	&& lua -v \
 
