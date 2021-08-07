@@ -12,7 +12,8 @@ RUN set -eux; \
 		ca-certificates p11-kit \
 		netbase \
 		gcc g++ \
-    lua${LUA_VERSION} \
+		tzdata \
+		lua${LUA_VERSION} \
 	; \
 	rm -rf /var/lib/apt/lists/* ; \
 	lua -v
@@ -117,6 +118,7 @@ RUN set -eux; \
 
 
 # python
+ENV GPG_KEY E3FF2839C048B25C084DEBE9B26995E310250568
 ENV PYTHON_VERSION 3.9.6
 # wasmtime
 ENV WASMTIME_VERSION v0.29.0
@@ -151,7 +153,7 @@ RUN set -ex \
 	&& wget -O python.tar.xz "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz" \
 	&& wget -O python.tar.xz.asc "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc" \
 	&& export GNUPGHOME="$(mktemp -d)" \
-	&& gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys "E3FF2839C048B25C084DEBE9B26995E310250568" \
+	&& gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$GPG_KEY" \
 	&& gpg --batch --verify python.tar.xz.asc python.tar.xz \
 	&& { command -v gpgconf > /dev/null && gpgconf --kill all || :; } \
 	&& rm -rf "$GNUPGHOME" python.tar.xz.asc \
